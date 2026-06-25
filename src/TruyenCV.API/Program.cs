@@ -1,41 +1,79 @@
+using System;
+using System.IO;
+using TruyenCV.API.Extensions;
+using TruyenCV.API.Middleware;
+using TruyenCV.Application.Extensions;
+using TruyenCV.Infrastructure.Extensions;
+
+// Load environment variables from .env file by searching upwards from the executing directory
+var currentDir = new DirectoryInfo(AppContext.BaseDirectory);
+while (currentDir != null)
+{
+    var envFilePath = Path.Combine(currentDir.FullName, ".env");
+    if (File.Exists(envFilePath))
+    {
+        foreach (var line in File.ReadAllLines(envFilePath))
+        {
+            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
+
+            var parts = line.Split('=', 2);
+            if (parts.Length == 2)
+            {
+                var key = parts[0].Trim();
+                var val = parts[1].Trim();
+                if ((val.StartsWith("\"") && val.EndsWith("\"")) || (val.StartsWith("'") && val.EndsWith("'")))
+                {
+                    val = val[1..^1];
+                }
+                Environment.SetEnvironmentVariable(key, val);
+            }
+        }
+        break;
+    }
+    currentDir = currentDir.Parent;
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// 1. Setup Logging (Serilog)
+builder.AddLoggingConfiguration();
+
+// 2. Setup Database & Infrastructure Services
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+// 3. Setup Security (JWT, Authentication, Authorization)
+builder.Services.AddSecurityConfiguration(builder.Configuration);
+
+// 4. Setup Swagger / OpenAPI
+builder.Services.AddSwaggerConfiguration();
+builder.Services.AddEndpointsApiExplorer();
+
+// 5. Setup Controllers, Validation, CORS
+builder.Services.AddApiModules();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ── HTTP Request Pipeline ────────────────────────────────────────────────
+
+// Global Exception Handler
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwaggerConfiguration();
 }
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseCors("AllowAll");
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+// Tự động chạy EF Core Migrations trước khi nhận Request
+app.ApplyDatabaseMigrationsAsync().Wait();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\git-test\\TruyenCV.Shared\\TruyenCV.Shared.csproj",
+      "projectUniqueName": "C:\\git-test\\src\\TruyenCV.Shared\\TruyenCV.Shared.csproj",
       "projectName": "TruyenCV.Shared",
-      "projectPath": "C:\\git-test\\TruyenCV.Shared\\TruyenCV.Shared.csproj",
+      "projectPath": "C:\\git-test\\src\\TruyenCV.Shared\\TruyenCV.Shared.csproj",
       "packagesPath": "C:\\Users\\Phuong Thao\\.nuget\\packages\\",
-      "outputPath": "C:\\git-test\\TruyenCV.Shared\\obj\\",
+      "outputPath": "C:\\git-test\\src\\TruyenCV.Shared\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Phuong Thao\\AppData\\Roaming\\NuGet\\NuGet.Config"

@@ -13,9 +13,6 @@ public sealed class TokenExpiredException : Exception
     public TokenExpiredException(string message)
         : base(message) { }
 
-    public TokenExpiredException(string tokenType)
-        : base($"The {tokenType} has expired. Please authenticate again.") { }
-
     public TokenExpiredException(string message, Exception innerException)
         : base(message, innerException) { }
 }

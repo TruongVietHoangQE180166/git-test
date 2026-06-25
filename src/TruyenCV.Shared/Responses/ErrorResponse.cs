@@ -5,6 +5,9 @@ namespace TruyenCV.Shared.Responses;
 /// </summary>
 public sealed class ErrorResponse
 {
+    /// <summary>Indicates that the operation failed.</summary>
+    public bool Succeeded { get; } = false;
+
     /// <summary>HTTP status code (e.g. 400, 401, 403, 404, 500).</summary>
     public int StatusCode { get; init; }
 

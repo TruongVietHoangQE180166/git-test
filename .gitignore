@@ -1,0 +1,34 @@
+# Build Artifacts
+**/bin/
+**/obj/
+**/publish/
+
+# IDE and Editor Files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.suo
+*.ntvs*
+*.njsproj
+*.sln.docstates
+
+# Operating System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Secrets / Configuration Files
+.env
+.env.local
+.env.*.local
+*.usersecrets
+
+# Log Files
+**/Logs/
+*.log
+

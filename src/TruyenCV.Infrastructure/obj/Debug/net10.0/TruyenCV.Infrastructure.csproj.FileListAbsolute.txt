@@ -16,3 +16,7 @@ C:\git-test\src\TruyenCV.Infrastructure\obj\Debug\net10.0\TruyenCV.Infrastructur
 C:\git-test\src\TruyenCV.Infrastructure\obj\Debug\net10.0\refint\TruyenCV.Infrastructure.dll
 C:\git-test\src\TruyenCV.Infrastructure\obj\Debug\net10.0\TruyenCV.Infrastructure.pdb
 C:\git-test\src\TruyenCV.Infrastructure\obj\Debug\net10.0\ref\TruyenCV.Infrastructure.dll
+C:\git-test\src\TruyenCV.Infrastructure\bin\Debug\net10.0\TruyenCV.Infrastructure.runtimeconfig.json
+C:\git-test\src\TruyenCV.Infrastructure\bin\Debug\net10.0\TruyenCV.Shared.dll
+C:\git-test\src\TruyenCV.Infrastructure\bin\Debug\net10.0\TruyenCV.Shared.pdb
+C:\git-test\src\TruyenCV.Infrastructure\obj\Debug\net10.0\TruyenCV.Infrastructure.genruntimeconfig.cache

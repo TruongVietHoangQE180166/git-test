@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TruyenCV.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4146a38be1b18c50d4eb6e8ad68c5ef84f192203")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c240d974d2e2ef7c67a3ace492d98d9c050d6edb")]
 [assembly: System.Reflection.AssemblyProductAttribute("TruyenCV.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TruyenCV.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
