@@ -1,0 +1,6 @@
+@TruyenCV.API_HostAddress = http://localhost:5062
+
+GET {{TruyenCV.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
