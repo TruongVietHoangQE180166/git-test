@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TruyenCV.API/TruyenCV.API.csproj" />
+    <Project Path="src/TruyenCV.Application/TruyenCV.Application.csproj" />
+    <Project Path="src/TruyenCV.Domain/TruyenCV.Domain.csproj" />
+    <Project Path="src/TruyenCV.Infrastructure/TruyenCV.Infrastructure.csproj" />
+    <Project Path="src/TruyenCV.Shared/TruyenCV.Shared.csproj" />
+  </Folder>
+</Solution>

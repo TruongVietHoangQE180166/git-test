@@ -1,0 +1,56 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "TruyenCV.Infrastructure/1.0.0": {
+        "dependencies": {
+          "TruyenCV.Application": "1.0.0",
+          "TruyenCV.Domain": "1.0.0"
+        },
+        "runtime": {
+          "TruyenCV.Infrastructure.dll": {}
+        }
+      },
+      "TruyenCV.Application/1.0.0": {
+        "dependencies": {
+          "TruyenCV.Domain": "1.0.0"
+        },
+        "runtime": {
+          "TruyenCV.Application.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "TruyenCV.Domain/1.0.0": {
+        "runtime": {
+          "TruyenCV.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "TruyenCV.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "TruyenCV.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "TruyenCV.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
