@@ -76,9 +76,53 @@ public class UserRepository : Repository<Domain.Entities.User>, IUserRepository
 
     public async Task SoftDeleteAsync(Guid id, CancellationToken ct = default)
     {
+        // 1. Soft delete User
         await Context.Users
             .Where(u => u.Id == id)
             .ExecuteUpdateAsync(s => s.SetProperty(u => u.Status, Domain.Enums.EntityStatus.Deleted), ct);
+
+        // 2. Soft delete Profile
+        await Context.Profiles
+            .Where(p => p.UserId == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, Domain.Enums.EntityStatus.Deleted), ct);
+
+        // 3. Invalidate and Soft delete active Sessions
+        await Context.AuthSessions
+            .Where(s => s.UserId == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(s => s.IsRevoked, true)
+                                      .SetProperty(s => s.Status, Domain.Enums.EntityStatus.Deleted), ct);
+    }
+
+    public async Task BanAsync(Guid id, CancellationToken ct = default)
+    {
+        // 1. Set User status to Inactive
+        await Context.Users
+            .Where(u => u.Id == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(u => u.Status, Domain.Enums.EntityStatus.Inactive), ct);
+
+        // 2. Set Profile status to Inactive
+        await Context.Profiles
+            .Where(p => p.UserId == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, Domain.Enums.EntityStatus.Inactive), ct);
+
+        // 3. Revoke all active Sessions
+        await Context.AuthSessions
+            .Where(s => s.UserId == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(s => s.IsRevoked, true)
+                                      .SetProperty(s => s.Status, Domain.Enums.EntityStatus.Inactive), ct);
+    }
+
+    public async Task UnbanAsync(Guid id, CancellationToken ct = default)
+    {
+        // 1. Set User status to Active
+        await Context.Users
+            .Where(u => u.Id == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(u => u.Status, Domain.Enums.EntityStatus.Active), ct);
+
+        // 2. Set Profile status to Active
+        await Context.Profiles
+            .Where(p => p.UserId == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, Domain.Enums.EntityStatus.Active), ct);
     }
 
     public async Task<(IReadOnlyList<Domain.Entities.User> Items, int TotalCount)> GetPagedAsync(

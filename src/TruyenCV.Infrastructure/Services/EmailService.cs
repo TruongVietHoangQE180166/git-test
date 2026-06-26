@@ -3,6 +3,7 @@ using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TruyenCV.Application.Common.Interfaces;
+using TruyenCV.Shared.Exceptions;
 
 namespace TruyenCV.Infrastructure.Services;
 
@@ -60,7 +61,7 @@ public class EmailService : IEmailService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send email to {ToEmail} with subject {Subject}", toEmail, subject);
-            throw; // Let the caller handle or log it further
+            throw new ExternalServiceException("EmailService", "Failed to send email.", ex);
         }
     }
 

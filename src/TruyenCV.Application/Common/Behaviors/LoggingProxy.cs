@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using TruyenCV.Shared.Exceptions;
 
 namespace TruyenCV.Application.Common.Behaviors;
 
@@ -13,7 +14,11 @@ public class LoggingProxy<T> : DispatchProxy
 
     public static T Create(T target, ILogger logger)
     {
-        object proxy = Create<T, LoggingProxy<T>>();
+        object? proxy = Create<T, LoggingProxy<T>>();
+        if (proxy == null)
+        {
+            throw new InvalidOperationException("Failed to create dispatch proxy.");
+        }
         ((LoggingProxy<T>)proxy)._target = target;
         ((LoggingProxy<T>)proxy)._logger = logger;
         return (T)proxy;
@@ -55,7 +60,14 @@ public class LoggingProxy<T> : DispatchProxy
         {
             stopwatch.Stop();
             var innerEx = ex.InnerException ?? ex;
-            _logger.LogError(innerEx, "Service method {Service}.{Method} failed after {Elapsed}ms", serviceName, methodName, stopwatch.ElapsedMilliseconds);
+            if (innerEx.IsSystemError())
+            {
+                _logger.LogError(innerEx, "Service method {Service}.{Method} failed after {Elapsed}ms", serviceName, methodName, stopwatch.ElapsedMilliseconds);
+            }
+            else
+            {
+                _logger.LogInformation("Service method {Service}.{Method} returned business error: {Message} in {Elapsed}ms", serviceName, methodName, innerEx.Message, stopwatch.ElapsedMilliseconds);
+            }
             throw innerEx;
         }
     }
@@ -71,7 +83,14 @@ public class LoggingProxy<T> : DispatchProxy
         catch (Exception ex)
         {
             stopwatch.Stop();
-            _logger.LogError(ex, "Async service method {Service}.{Method} failed after {Elapsed}ms", serviceName, methodName, stopwatch.ElapsedMilliseconds);
+            if (ex.IsSystemError())
+            {
+                _logger.LogError(ex, "Async service method {Service}.{Method} failed after {Elapsed}ms", serviceName, methodName, stopwatch.ElapsedMilliseconds);
+            }
+            else
+            {
+                _logger.LogInformation("Async service method {Service}.{Method} returned business error: {Message} in {Elapsed}ms", serviceName, methodName, ex.Message, stopwatch.ElapsedMilliseconds);
+            }
             throw;
         }
     }
@@ -88,7 +107,14 @@ public class LoggingProxy<T> : DispatchProxy
         catch (Exception ex)
         {
             stopwatch.Stop();
-            _logger.LogError(ex, "Async service method {Service}.{Method} failed after {Elapsed}ms", serviceName, methodName, stopwatch.ElapsedMilliseconds);
+            if (ex.IsSystemError())
+            {
+                _logger.LogError(ex, "Async service method {Service}.{Method} failed after {Elapsed}ms", serviceName, methodName, stopwatch.ElapsedMilliseconds);
+            }
+            else
+            {
+                _logger.LogInformation("Async service method {Service}.{Method} returned business error: {Message} in {Elapsed}ms", serviceName, methodName, ex.Message, stopwatch.ElapsedMilliseconds);
+            }
             throw;
         }
     }

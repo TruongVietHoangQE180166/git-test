@@ -39,7 +39,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.Status)
             .HasConversion<int>()
-            .HasDefaultValue(EntityStatus.Active);
+            .HasDefaultValue(EntityStatus.Active)
+            .HasSentinel((EntityStatus)0);
 
         builder.Property(u => u.RoleId)
             .HasColumnType("char(36)");

@@ -29,7 +29,9 @@ public class ProfileRepository : Repository<Domain.Entities.Profile>, IProfileRe
         if (includeUser)
             query = query.Include(p => p.User);
 
-        return await query.FirstOrDefaultAsync(p => p.UserId == userId, ct);
+        return await query.FirstOrDefaultAsync(p => p.UserId == userId 
+            && p.Status != Domain.Enums.EntityStatus.Deleted 
+            && (!includeUser || p.User.Status != Domain.Enums.EntityStatus.Deleted), ct);
     }
 
     /// <summary>Returns a profile by URL slug (used for public profile pages).</summary>
@@ -38,7 +40,10 @@ public class ProfileRepository : Repository<Domain.Entities.Profile>, IProfileRe
         CancellationToken ct = default)
         => await Context.Profiles
             .Include(p => p.User)
-            .FirstOrDefaultAsync(p => p.Slug == slug && p.IsPublic, ct);
+            .FirstOrDefaultAsync(p => p.Slug == slug 
+                && p.IsPublic 
+                && p.Status != Domain.Enums.EntityStatus.Deleted 
+                && p.User.Status != Domain.Enums.EntityStatus.Deleted, ct);
 
     public async Task<(IReadOnlyList<Domain.Entities.Profile> Items, int TotalCount)> GetPagedAsync(
         int pageNumber,
@@ -48,7 +53,12 @@ public class ProfileRepository : Repository<Domain.Entities.Profile>, IProfileRe
         string? searchTerm,
         CancellationToken ct = default)
     {
-        var query = Context.Profiles.Include(p => p.User).Where(p => p.IsPublic).AsQueryable();
+        var query = Context.Profiles
+            .Include(p => p.User)
+            .Where(p => p.IsPublic 
+                && p.Status != Domain.Enums.EntityStatus.Deleted 
+                && p.User.Status != Domain.Enums.EntityStatus.Deleted)
+            .AsQueryable();
 
         // Searching
         if (!string.IsNullOrWhiteSpace(searchTerm))

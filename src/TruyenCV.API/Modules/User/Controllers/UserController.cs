@@ -90,6 +90,29 @@ public class UserController : ControllerBase
         return Ok(ApiResponse<object>.Success(new { }, "User deleted successfully."));
     }
 
+    [Authorize(Policy = AuthPolicies.RequireAdminRole)]
+    [HttpPost("{id:guid}/ban")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ApiResponse<object>>> Ban(Guid id, CancellationToken ct)
+    {
+        await _userService.BanAsync(id, ct);
+        return Ok(ApiResponse<object>.Success(new { }, "User account has been suspended successfully."));
+    }
+
+    [Authorize(Policy = AuthPolicies.RequireAdminRole)]
+    [HttpPost("{id:guid}/unban")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ApiResponse<object>>> Unban(Guid id, CancellationToken ct)
+    {
+        await _userService.UnbanAsync(id, ct);
+        return Ok(ApiResponse<object>.Success(new { }, "User account has been unsuspended successfully."));
+    }
+
     private Guid GetUserId()
     {
         var userIdClaim = User.FindFirst(AppClaimTypes.UserId)?.Value;

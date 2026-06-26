@@ -25,7 +25,7 @@ public class ValidationAuthService : IAuthService
         _loginValidator = loginValidator;
     }
 
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
+    public async Task<Guid> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
     {
         var result = await _registerValidator.ValidateAsync(request, ct);
         if (!result.IsValid)
