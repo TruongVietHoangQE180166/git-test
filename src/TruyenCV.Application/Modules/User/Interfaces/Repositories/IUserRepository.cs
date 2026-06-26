@@ -14,6 +14,8 @@ public interface IUserRepository : IRepository<TruyenCV.Domain.Entities.User>
     Task<bool> ExistsByEmailAsync(string email, CancellationToken ct = default);
     Task<bool> ExistsByUsernameAsync(string username, CancellationToken ct = default);
     Task SoftDeleteAsync(Guid id, CancellationToken ct = default);
+    Task BanAsync(Guid id, CancellationToken ct = default);
+    Task UnbanAsync(Guid id, CancellationToken ct = default);
     Task<(IReadOnlyList<TruyenCV.Domain.Entities.User> Items, int TotalCount)> GetPagedAsync(
         int pageNumber,
         int pageSize,

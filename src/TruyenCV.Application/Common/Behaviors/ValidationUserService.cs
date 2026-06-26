@@ -65,4 +65,14 @@ public class ValidationUserService : IUserService
     {
         return _inner.DeleteAsync(id, ct);
     }
+
+    public Task BanAsync(Guid id, CancellationToken ct = default)
+    {
+        return _inner.BanAsync(id, ct);
+    }
+
+    public Task UnbanAsync(Guid id, CancellationToken ct = default)
+    {
+        return _inner.UnbanAsync(id, ct);
+    }
 }

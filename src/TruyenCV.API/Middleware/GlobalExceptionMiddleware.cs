@@ -24,7 +24,14 @@ public class GlobalExceptionMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An unhandled exception occurred during the request.");
+            if (ex.IsSystemError())
+            {
+                _logger.LogError(ex, "An unhandled system exception occurred during the request.");
+            }
+            else
+            {
+                _logger.LogInformation("Request failed due to business exception: {ExceptionType} - {Message}", ex.GetType().Name, ex.Message);
+            }
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -48,6 +55,22 @@ public class GlobalExceptionMiddleware
                 statusCode = (int)HttpStatusCode.BadRequest;
                 message = e.Message;
                 break;
+            case FileUploadException e:
+                statusCode = (int)HttpStatusCode.BadRequest;
+                message = e.Message;
+                break;
+            case UnauthorizedException e:
+                statusCode = (int)HttpStatusCode.Unauthorized;
+                message = e.Message;
+                break;
+            case TokenExpiredException e:
+                statusCode = (int)HttpStatusCode.Unauthorized;
+                message = e.Message;
+                break;
+            case ForbiddenException e:
+                statusCode = (int)HttpStatusCode.Forbidden;
+                message = e.Message;
+                break;
             case NotFoundException e:
                 statusCode = (int)HttpStatusCode.NotFound;
                 message = e.Message;
@@ -56,16 +79,44 @@ public class GlobalExceptionMiddleware
                 statusCode = (int)HttpStatusCode.Conflict;
                 message = e.Message;
                 break;
-            case UnauthorizedException e:
-                statusCode = (int)HttpStatusCode.Unauthorized;
+            case RequestTimeoutException e:
+                statusCode = (int)HttpStatusCode.RequestTimeout;
                 message = e.Message;
                 break;
-            case ForbiddenException e:
-                statusCode = (int)HttpStatusCode.Forbidden;
+            case TooManyRequestsException e:
+                statusCode = StatusCodes.Status429TooManyRequests;
                 message = e.Message;
+                if (e.RetryAfterSeconds.HasValue)
+                {
+                    context.Response.Headers["Retry-After"] = e.RetryAfterSeconds.Value.ToString();
+                }
                 break;
             case BusinessRuleException e:
                 statusCode = (int)HttpStatusCode.UnprocessableEntity;
+                message = e.Message;
+                break;
+            case TruyenCV.Shared.Exceptions.NotImplementedException e:
+                statusCode = (int)HttpStatusCode.NotImplemented;
+                message = e.Message;
+                break;
+            case System.NotImplementedException e:
+                statusCode = (int)HttpStatusCode.NotImplemented;
+                message = e.Message;
+                break;
+            case ExternalServiceException e:
+                statusCode = (int)HttpStatusCode.BadGateway;
+                message = e.Message;
+                break;
+            case ServiceUnavailableException e:
+                statusCode = (int)HttpStatusCode.ServiceUnavailable;
+                message = e.Message;
+                if (e.RetryAfterSeconds.HasValue)
+                {
+                    context.Response.Headers["Retry-After"] = e.RetryAfterSeconds.Value.ToString();
+                }
+                break;
+            case DatabaseException e:
+                statusCode = (int)HttpStatusCode.InternalServerError;
                 message = e.Message;
                 break;
             default:

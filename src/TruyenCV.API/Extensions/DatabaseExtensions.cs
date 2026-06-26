@@ -34,7 +34,27 @@ public static class DatabaseExtensions
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "An error occurred while applying database migrations. The application will continue to start.");
+            try
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var connection = dbContext.Database.GetDbConnection();
+                var host = connection.DataSource;
+                var database = connection.Database;
+
+                logger.LogError(
+                    ex,
+                    "Database connection failed! Server: '{Host}', Database: '{Database}'. Error: {Message}",
+                    host,
+                    database,
+                    ex.Message
+                );
+            }
+            catch (Exception)
+            {
+                logger.LogError(ex, "Database connection failed! Error: {Message}", ex.Message);
+            }
+
+            logger.LogWarning("The application will continue to start, but database operations may fail.");
         }
     }
 }

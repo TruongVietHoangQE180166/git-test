@@ -7,6 +7,7 @@ using TruyenCV.Application.Modules.Auth.Interfaces.Services;
 using TruyenCV.Application.Modules.Role.Interfaces.Repositories;
 using TruyenCV.Application.Modules.User.Interfaces.Repositories;
 using TruyenCV.Domain.Entities;
+using TruyenCV.Domain.Enums;
 using TruyenCV.Shared.Constants;
 using TruyenCV.Shared.Exceptions;
 
@@ -37,7 +38,7 @@ public class AuthService : IAuthService
         _mapper = mapper;
     }
 
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
+    public async Task<Guid> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
     {
         if (await _userRepository.ExistsByEmailAsync(request.Email, ct))
         {
@@ -73,15 +74,20 @@ public class AuthService : IAuthService
         await _userRepository.AddAsync(user, ct);
         await _userRepository.SaveChangesAsync(ct);
 
-        return await GenerateAuthResponseAsync(user, ct);
+        return user.Id;
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
         var user = await _userRepository.GetByEmailAsync(request.Email, ct);
-        if (user == null)
+        if (user == null || user.Status == EntityStatus.Deleted)
         {
             throw new UnauthorizedException("Invalid email or password.");
+        }
+
+        if (user.Status == EntityStatus.Inactive)
+        {
+            throw new ForbiddenException("Your account has been suspended. Please contact support.");
         }
 
         if (!_passwordHasher.Verify(request.Password, user.PasswordHash))
@@ -91,7 +97,15 @@ public class AuthService : IAuthService
 
         // Must load role for JWT generation
         var userWithRole = await _userRepository.GetWithRoleAsync(user.Id, ct);
-        if (userWithRole == null) throw new UnauthorizedException("User not found.");
+        if (userWithRole == null || userWithRole.Status == EntityStatus.Deleted)
+        {
+            throw new UnauthorizedException("User not found.");
+        }
+
+        if (userWithRole.Status == EntityStatus.Inactive)
+        {
+            throw new ForbiddenException("Your account has been suspended. Please contact support.");
+        }
 
         return await GenerateAuthResponseAsync(userWithRole, ct);
     }
@@ -100,9 +114,14 @@ public class AuthService : IAuthService
     {
         var session = await _authRepository.GetByRefreshTokenAsync(request.RefreshToken, ct);
 
-        if (session == null || session.IsRevoked || session.ExpiresAt <= DateTime.UtcNow)
+        if (session == null || session.IsRevoked)
         {
-            throw new UnauthorizedException("Invalid or expired refresh token.");
+            throw new UnauthorizedException("Invalid refresh token.");
+        }
+
+        if (session.ExpiresAt <= DateTime.UtcNow)
+        {
+            throw new TokenExpiredException("Refresh token has expired. Please login again.");
         }
 
         // Revoke the old token (Refresh Token Rotation)
@@ -110,7 +129,15 @@ public class AuthService : IAuthService
         _authRepository.Update(session);
 
         var userWithRole = await _userRepository.GetWithRoleAsync(session.UserId, ct);
-        if (userWithRole == null) throw new UnauthorizedException("User not found.");
+        if (userWithRole == null || userWithRole.Status == EntityStatus.Deleted)
+        {
+            throw new UnauthorizedException("User not found.");
+        }
+
+        if (userWithRole.Status == EntityStatus.Inactive)
+        {
+            throw new ForbiddenException("Your account has been suspended.");
+        }
 
         return await GenerateAuthResponseAsync(userWithRole, ct);
     }

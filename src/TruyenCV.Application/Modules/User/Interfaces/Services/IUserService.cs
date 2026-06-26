@@ -16,4 +16,6 @@ public interface IUserService
     Task<PaginatedResponse<UserResponse>> GetPagedAsync(PaginationRequest request, CancellationToken ct = default);
     Task<UserResponse> UpdateAsync(Guid id, UpdateUserRequest request, CancellationToken ct = default);
     Task DeleteAsync(Guid id, CancellationToken ct = default);
+    Task BanAsync(Guid id, CancellationToken ct = default);
+    Task UnbanAsync(Guid id, CancellationToken ct = default);
 }

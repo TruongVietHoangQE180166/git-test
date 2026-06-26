@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TruyenCV.Application.Common.Interfaces;
 using TruyenCV.Infrastructure.Persistence.Context;
+using TruyenCV.Shared.Exceptions;
 
 namespace TruyenCV.Infrastructure.Persistence.Repositories;
 
@@ -31,5 +32,14 @@ public class Repository<T> : IRepository<T> where T : class
         => DbSet.Remove(entity);
 
     public virtual async Task<int> SaveChangesAsync(CancellationToken ct = default)
-        => await Context.SaveChangesAsync(ct);
+    {
+        try
+        {
+            return await Context.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new DatabaseException("An error occurred while saving changes to the database.", "SaveChanges", ex);
+        }
+    }
 }

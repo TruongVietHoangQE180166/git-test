@@ -51,7 +51,8 @@ public class UserService : IUserService
 
         if (user.Role == null)
         {
-            user.Role = await _roleRepository.GetByIdAsync(user.RoleId, ct);
+            user.Role = await _roleRepository.GetByIdAsync(user.RoleId, ct) 
+                ?? throw new NotFoundException($"Role with ID {user.RoleId} was not found.");
         }
 
         return _mapper.Map<UserResponse>(user);
@@ -124,5 +125,33 @@ public class UserService : IUserService
         }
 
         await _userRepository.SoftDeleteAsync(id, ct);
+    }
+
+    public async Task BanAsync(Guid id, CancellationToken ct = default)
+    {
+        var user = await _userRepository.GetWithRoleAsync(id, ct);
+        if (user == null || user.Status == EntityStatus.Deleted)
+        {
+            throw new NotFoundException($"User with ID {id} was not found.");
+        }
+
+        // Safety check: Prevent banning Admin accounts
+        if (user.Role != null && string.Equals(user.Role.Name, TruyenCV.Shared.Constants.RoleConstants.Admin, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new BusinessRuleException("Administrator accounts cannot be banned.");
+        }
+
+        await _userRepository.BanAsync(id, ct);
+    }
+
+    public async Task UnbanAsync(Guid id, CancellationToken ct = default)
+    {
+        var user = await _userRepository.GetByIdAsync(id, ct);
+        if (user == null || user.Status == EntityStatus.Deleted)
+        {
+            throw new NotFoundException($"User with ID {id} was not found.");
+        }
+
+        await _userRepository.UnbanAsync(id, ct);
     }
 }

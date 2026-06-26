@@ -1,8 +1,12 @@
+using System.Text.Json.Serialization;
+
 namespace TruyenCV.Application.Modules.Auth.DTOs.Responses;
 
 public class AuthResponse
 {
     public string AccessToken { get; set; } = string.Empty;
+
+    [JsonIgnore]
     public string RefreshToken { get; set; } = string.Empty;
     
     public UserDto User { get; set; } = null!;
